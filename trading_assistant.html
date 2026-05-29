@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Trading Assistant — Mia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0F2044;
+    --navy-light: #1a3368;
+    --green: #00C853;
+    --red: #F5222D;
+    --bg: #F5F6FA;
+    --card: #FFFFFF;
+    --border: #E8ECF1;
+    --text: #1A1A2E;
+    --text-secondary: #6B7280;
+    --text-muted: #9CA3AF;
+    --accent: #00C853;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.06);
+    --shadow-lg: 0 4px 24px rgba(0,0,0,0.10);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #E8ECF1;
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; padding: 20px;
+    color: var(--text);
+  }
+
+  .app-container {
+    width: 100%; max-width: 1280px; height: 92vh; min-height: 700px;
+    background: var(--bg);
+    border-radius: 20px;
+    overflow: hidden;
+    display: flex;
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* ─── LEFT — Portfolio Panel ─── */
+  .portfolio-panel {
+    width: 35%; min-width: 380px;
+    background: var(--card);
+    display: flex; flex-direction: column;
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+  }
+
+  .portfolio-header {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+    color: #fff; padding: 24px 22px 20px;
+  }
+  .portfolio-header .label { font-size: 12px; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.5px; }
+  .portfolio-header .value { font-size: 28px; font-weight: 700; margin: 2px 0 4px; }
+  .portfolio-header .pnl { font-size: 15px; font-weight: 600; }
+  .pnl-positive { color: var(--green); }
+  .pnl-negative { color: var(--red); }
+
+  .holdings-section { padding: 16px 22px; }
+  .section-title {
+    font-size: 14px; font-weight: 600; color: var(--text);
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .section-title::before { content: ''; width: 3px; height: 16px; background: var(--navy); border-radius: 2px; }
+
+  .holdings-table { width: 100%; font-size: 12px; }
+  .holdings-table th {
+    text-align: left; font-weight: 500; color: var(--text-muted);
+    font-size: 11px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+  }
+  .holdings-table td { padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .holdings-table .ticker { font-weight: 700; font-size: 13px; }
+  .holdings-table .name { font-size: 11px; color: var(--text-secondary); }
+  .holdings-table .pnl-col { font-weight: 600; text-align: right; }
+  .holdings-table th:last-child, .holdings-table td:last-child { text-align: right; }
+
+  .market-summary {
+    padding: 14px 22px; border-top: 1px solid var(--border);
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .market-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 13px;
+  }
+  .market-row .idx { color: var(--text-secondary); }
+  .market-row .val { font-weight: 600; }
+  .market-row .chg { font-size: 12px; font-weight: 600; min-width: 56px; text-align: right; }
+
+  .account-strip {
+    padding: 14px 22px; border-top: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 12px;
+  }
+  .account-chip {
+    background: var(--bg); border-radius: var(--radius-sm);
+    padding: 8px 14px; font-size: 11px;
+    display: flex; flex-direction: column; gap: 2px;
+    flex: 1; min-width: 100px;
+  }
+  .account-chip .chip-label { color: var(--text-muted); font-size: 10px; }
+  .account-chip .chip-value { font-weight: 600; font-size: 12px; }
+
+  /* ─── RIGHT — Chat Interface ─── */
+  .chat-panel {
+    flex: 1; display: flex; flex-direction: column;
+    background: #FAFBFD;
+    min-width: 0;
+  }
+
+  .chat-header {
+    background: var(--card);
+    padding: 16px 22px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .chat-header-left { display: flex; align-items: center; gap: 10px; }
+  .ai-avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--green) 0%, #00A844 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; color: #fff; position: relative;
+  }
+  .live-dot {
+    position: absolute; bottom: -1px; right: -1px;
+    width: 10px; height: 10px; background: var(--green);
+    border: 2px solid #fff; border-radius: 50%;
+    animation: pulse 1.8s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
+  }
+
+  .chat-header-title { font-size: 16px; font-weight: 700; }
+  .chat-header-subtitle { font-size: 11px; color: var(--text-muted); }
+
+  .chat-messages {
+    flex: 1; overflow-y: auto; padding: 20px 22px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+
+  /* Suggested chips */
+  .chips-container {
+    display: flex; flex-wrap: wrap; gap: 8px; padding: 0 22px 14px;
+  }
+  .chip {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 20px; padding: 8px 16px;
+    font-size: 13px; color: var(--navy);
+    cursor: pointer; transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .chip:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+  /* Chat bubbles */
+  .message {
+    display: flex; flex-direction: column;
+    animation: msgIn 0.3s ease-out;
+    max-width: 80%;
+  }
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .message.user { align-self: flex-end; }
+  .message.assistant { align-self: flex-start; }
+
+  .bubble {
+    padding: 12px 16px; border-radius: 16px;
+    font-size: 14px; line-height: 1.55;
+  }
+  .message.user .bubble {
+    background: var(--navy); color: #fff;
+    border-bottom-right-radius: 4px;
+  }
+  .message.assistant .bubble {
+    background: var(--card); color: var(--text);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 4px;
+    box-shadow: var(--shadow);
+  }
+
+  .compliance-badge {
+    font-size: 10px; color: var(--text-muted);
+    margin-top: 4px; display: flex; align-items: center; gap: 4px;
+  }
+  .compliance-badge .badge-icon {
+    display: inline-block;
+    width: 14px; height: 14px;
+    background: #F0F0F5; border-radius: 50%;
+    text-align: center; line-height: 14px; font-size: 9px;
+  }
+
+  .advisor-btn {
+    display: inline-block; margin-top: 6px;
+    background: var(--bg); border: 1px dashed var(--border);
+    border-radius: var(--radius-sm); padding: 6px 14px;
+    font-size: 12px; color: var(--navy); cursor: pointer;
+    transition: all 0.15s;
+  }
+  .advisor-btn:hover { background: #E8ECF1; border-style: solid; }
+
+  /* Typing indicator */
+  .typing-indicator {
+    align-self: flex-start; display: flex; gap: 5px;
+    padding: 14px 18px; background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px; border-bottom-left-radius: 4px;
+    box-shadow: var(--shadow);
+  }
+  .typing-indicator .dot {
+    width: 7px; height: 7px; background: var(--text-muted);
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+  .typing-indicator .dot:nth-child(2) { animation-delay: 0.15s; }
+  .typing-indicator .dot:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.3; }
+    30% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  /* Input bar */
+  .input-bar {
+    padding: 14px 22px; background: var(--card);
+    border-top: 1px solid var(--border);
+    display: flex; gap: 10px; align-items: center;
+  }
+  .input-bar input {
+    flex: 1; border: 1px solid var(--border); border-radius: 24px;
+    padding: 10px 18px; font-size: 14px; font-family: inherit;
+    outline: none; transition: border-color 0.15s;
+    background: var(--bg);
+  }
+  .input-bar input:focus { border-color: var(--navy); }
+  .send-btn {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--navy); color: #fff; border: none;
+    cursor: pointer; font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+    flex-shrink: 0;
+  }
+  .send-btn:hover { background: var(--navy-light); }
+  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .disclaimer-strip {
+    padding: 8px 22px;
+    font-size: 10px; color: var(--text-muted);
+    text-align: center; background: #F9FAFB;
+    border-top: 1px solid var(--border);
+  }
+
+  /* API key modal */
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15,32,68,0.7);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100;
+  }
+  .modal {
+    background: var(--card); border-radius: var(--radius);
+    padding: 28px 24px; width: 400px; max-width: 90vw;
+    box-shadow: var(--shadow-lg);
+  }
+  .modal h3 { font-size: 18px; margin-bottom: 6px; }
+  .modal p { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; }
+  .modal input {
+    width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 10px 14px; font-size: 14px; font-family: inherit; margin-bottom: 12px;
+    outline: none;
+  }
+  .modal input:focus { border-color: var(--navy); }
+  .modal .btn-primary {
+    width: 100%; background: var(--navy); color: #fff; border: none;
+    border-radius: var(--radius-sm); padding: 10px; font-size: 14px;
+    font-weight: 600; cursor: pointer; font-family: inherit;
+  }
+  .modal .btn-primary:hover { background: var(--navy-light); }
+  .modal .skip-link {
+    text-align: center; margin-top: 10px; font-size: 12px;
+    color: var(--text-muted); cursor: pointer; text-decoration: underline;
+  }
+
+  .footer {
+    padding: 8px 22px; font-size: 10px; color: var(--text-muted);
+    text-align: center; background: #F9FAFB;
+    border-top: 1px solid var(--border);
+    line-height: 1.6;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 10px; }
+
+  /* Responsive */
+  @media (max-width: 860px) {
+    .app-container { flex-direction: column; height: auto; min-height: 100vh; }
+    .portfolio-panel { width: 100%; min-width: 0; max-height: 55vh; }
+    .chat-panel { min-height: 400px; }
+    .message { max-width: 90%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- LEFT — Portfolio Panel -->
+  <div class="portfolio-panel" id="portfolio">
+    <div class="portfolio-header">
+      <div class="label">My Portfolio</div>
+      <div class="value" id="totalValue">--</div>
+      <div class="pnl pnl-positive" id="dayPnL">--</div>
+    </div>
+
+    <div class="holdings-section">
+      <div class="section-title">Holdings</div>
+      <table class="holdings-table">
+        <thead>
+          <tr><th>Stock</th><th>Shares</th><th>Avg</th><th>Last</th><th>P&L</th><th>P&L%</th></tr>
+        </thead>
+        <tbody id="holdingsBody"></tbody>
+      </table>
+    </div>
+
+    <div class="market-summary" id="marketSummary"></div>
+    <div class="account-strip" id="accountStrip"></div>
+  </div>
+
+  <!-- RIGHT — Chat Interface -->
+  <div class="chat-panel" id="chatPanel">
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <div class="ai-avatar">
+          🤖<div class="live-dot"></div>
+        </div>
+        <div>
+          <div class="chat-header-title">Mia — Your AI Trading Assistant</div>
+          <div class="chat-header-subtitle">對話記錄不會儲存 · Online now</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chips-container" id="chipsContainer"></div>
+
+    <div class="chat-messages" id="chatMessages">
+      <div class="message assistant">
+        <div class="bubble">
+          👋 你好！我係 Mia，你嘅 AI 交易助理。<br>
+          我可以幫你分析組合表現、解讀市場數據、講解財務概念。<br>
+          有咩可以幫到你？
+        </div>
+        <div class="compliance-badge"><span class="badge-icon">ℹ️</span> 資訊用途</div>
+      </div>
+    </div>
+
+    <div class="input-bar">
+      <input type="text" id="userInput" placeholder="輸入你嘅問題..." autocomplete="off">
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+    </div>
+
+    <div class="disclaimer-strip">
+      Mia 提供資訊僅供參考，不構成投資建議。投資涉及風險，請參閱相關風險披露聲明。
+    </div>
+
+    <div class="footer">
+      Smart Trading Assistant — Portfolio Demo | AI Product Manager | Hong Kong Brokerage &amp; Fintech<br>
+      本 demo 使用模擬數據，不代表真實投資組合
+    </div>
+  </div>
+</div>
+
+<!-- API Key Modal -->
+<div class="modal-overlay" id="apiModal">
+  <div class="modal">
+    <h3>🔑 輸入 DeepSeek API Key</h3>
+    <p>API Key 僅暫存於瀏覽器中，不會上傳至任何伺服器。你可以從 DeepSeek 開發者平台獲取。</p>
+    <input type="password" id="apiKeyInput" placeholder="sk-...">
+    <button class="btn-primary" onclick="saveApiKey()">開始使用</button>
+    <div class="skip-link" onclick="skipApiKey()">跳過，先睇 Demo 介面</div>
+  </div>
+</div>
+
+<script>
+// ─── Mock Portfolio Data ───
+const portfolio = {
+  accountId: "HK****8847",
+  accountType: "現金戶口 — 專業投資者",
+  riskLevel: "進取型",
+  cashBalance: "HKD 284,320",
+  totalValue: "HKD 1,847,650",
+  dayPnL: "+HKD 23,140",
+  dayPnLPct: "+1.27%",
+  holdings: [
+    { ticker: "0700.HK", name: "騰訊控股", shares: 500, avgCost: 312.40, lastPrice: 358.20, currency: "HKD" },
+    { ticker: "NVDA", name: "輝達", shares: 80, avgCost: 485.20, lastPrice: 721.50, currency: "USD" },
+    { ticker: "9988.HK", name: "阿里巴巴", shares: 1200, avgCost: 92.30, lastPrice: 84.60, currency: "HKD" },
+    { ticker: "2318.HK", name: "中國平安", shares: 2000, avgCost: 48.80, lastPrice: 51.30, currency: "HKD" },
+    { ticker: "AAPL", name: "蘋果", shares: 60, avgCost: 178.40, lastPrice: 214.20, currency: "USD" }
+  ],
+  marketSummary: [
+    { index: "恒生指數", value: "19,847", change: "+1.34%" },
+    { index: "國企指數", value: "7,124", change: "+0.87%" },
+    { index: "標普500", value: "5,842", change: "-0.23%" }
+  ]
+};
+
+// ─── System Prompt ───
+const systemPrompt = `You are Mia, an AI trading assistant embedded in a Hong Kong licensed brokerage app.
+You are helpful, knowledgeable, and conversational — speaking in the same language the user uses (Cantonese, Mandarin, or English).
+
+You have access to the user's portfolio:
+${JSON.stringify(portfolio, null, 2)}
+
+Your capabilities:
+- Explain the user's portfolio performance and individual holdings
+- Explain financial concepts clearly (technical indicators, valuation metrics, market terms)
+- Discuss market trends and news context (note your knowledge cutoff: early 2025)
+- Help users understand risk exposure in their portfolio
+
+Your hard boundaries (CRITICAL — never cross these):
+- NEVER give specific buy/sell/hold recommendations ("你應該買/賣" is forbidden)
+- NEVER predict price targets or future performance
+- ALWAYS add appropriate risk disclaimers when discussing specific stocks
+- If asked for direct investment advice, explain clearly: "我係資訊助手，唔係持牌投資顧問，唔可以俾你投資建議。"
+- NEVER discuss margin lending specifics, derivatives strategies, or leveraged products in detail
+
+Your tone: warm, smart, conversational. Like a knowledgeable friend who works in finance.
+Keep responses concise — 3-5 sentences for simple questions, slightly longer for complex ones.
+Format with light markdown where helpful (bold for key figures, bullet points for lists).`;
+
+// ─── State ───
+let apiKey = null;
+let conversationHistory = [{ role: "system", content: systemPrompt }];
+let isWaiting = false;
+
+// ─── Initialize UI ───
+function renderPortfolio() {
+  // Header
+  document.getElementById('totalValue').textContent = portfolio.totalValue;
+  document.getElementById('dayPnL').textContent = `${portfolio.dayPnL} (${portfolio.dayPnLPct})`;
+
+  // Holdings
+  const tbody = document.getElementById('holdingsBody');
+  portfolio.holdings.forEach(h => {
+    const shares = h.shares.toLocaleString();
+    const avg = `${h.currency === 'HKD' ? 'HK$' : '$'}${h.avgCost.toFixed(2)}`;
+    const last = `${h.currency === 'HKD' ? 'HK$' : '$'}${h.lastPrice.toFixed(2)}`;
+    const pnlVal = (h.lastPrice - h.avgCost) * h.shares;
+    const pnlStr = pnlVal >= 0 ? `+${(h.currency === 'HKD' ? 'HK$' : '$')}${pnlVal.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}` : `${(h.currency === 'HKD' ? '-HK$' : '-$')}${Math.abs(pnlVal).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
+    const pnlPct = (((h.lastPrice - h.avgCost) / h.avgCost) * 100);
+    const pnlClass = pnlPct >= 0 ? 'pnl-positive' : 'pnl-negative';
+    const pnlPctStr = `${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(2)}%`;
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><div class="ticker">${h.ticker}</div><div class="name">${h.name}</div></td>
+      <td>${shares}</td>
+      <td>${avg}</td>
+      <td>${last}</td>
+      <td class="pnl-col ${pnlClass}">${pnlStr}</td>
+      <td class="pnl-col ${pnlClass}">${pnlPctStr}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Market Summary
+  const msDiv = document.getElementById('marketSummary');
+  portfolio.marketSummary.forEach(m => {
+    const isNeg = m.change.startsWith('-');
+    const row = document.createElement('div');
+    row.className = 'market-row';
+    row.innerHTML = `
+      <span class="idx">${m.index}</span>
+      <span class="val">${m.value}</span>
+      <span class="chg" style="color:${isNeg ? 'var(--red)' : 'var(--green)'}">${m.change}</span>
+    `;
+    msDiv.appendChild(row);
+  });
+
+  // Account Strip
+  const accDiv = document.getElementById('accountStrip');
+  const chips = [
+    { label: '帳戶類型', value: portfolio.accountType },
+    { label: '風險等級', value: portfolio.riskLevel },
+    { label: '現金結餘', value: portfolio.cashBalance }
+  ];
+  chips.forEach(c => {
+    const chip = document.createElement('div');
+    chip.className = 'account-chip';
+    chip.innerHTML = `<span class="chip-label">${c.label}</span><span class="chip-value">${c.value}</span>`;
+    accDiv.appendChild(chip);
+  });
+}
+
+function renderChips() {
+  const chips = [
+    "帶我睇下我個組合表現",
+    "解讀吓 0700.HK 最新業績",
+    "我應唔應該加注 NVDA？",
+    "咩係 RSI？點解要睇呢個指標？",
+    "我組合入面風險高唔高？"
+  ];
+  const container = document.getElementById('chipsContainer');
+  chips.forEach(text => {
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = text;
+    chip.addEventListener('click', () => {
+      document.getElementById('userInput').value = text;
+      sendMessage();
+    });
+    container.appendChild(chip);
+  });
+}
+
+// ─── Chat Functions ───
+function hideChips() {
+  const chips = document.getElementById('chipsContainer');
+  if (chips) chips.style.display = 'none';
+}
+
+function scrollToBottom() {
+  const msgs = document.getElementById('chatMessages');
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addUserMessage(text) {
+  hideChips();
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'message user';
+  div.innerHTML = `<div class="bubble">${escapeHtml(text)}</div>`;
+  msgs.appendChild(div);
+  scrollToBottom();
+}
+
+function showTypingIndicator() {
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'typing-indicator';
+  div.id = 'typingIndicator';
+  div.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+  msgs.appendChild(div);
+  scrollToBottom();
+}
+
+function removeTypingIndicator() {
+  const el = document.getElementById('typingIndicator');
+  if (el) el.remove();
+}
+
+function detectBoundaryViolation(userMessage) {
+  const lower = userMessage.toLowerCase();
+  const patterns = [
+    /應唔應該買/,
+    /應唔應該賣/,
+    /應該買/,
+    /應該賣/,
+    /應該入手/,
+    /應該放/,
+    /應該沽/,
+    /應該唔應該/,
+    /好唔好買/,
+    /好唔好賣/,
+    /值唔值得買/,
+    /值唔值得投資/,
+    /可唔可以買/,
+    /可唔可以賣/,
+    /入唔入得過/,
+    /走唔走得/,
+    /buy.*recommend/,
+    /sell.*recommend/,
+    /should i buy/,
+    /should i sell/,
+    /is it a good time/,
+    /what price.*target/,
+    /target price/,
+    /price prediction/,
+  ];
+  return patterns.some(p => p.test(lower));
+}
+
+function addAssistantMessage(text, showAdvisorBtn = false) {
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'message assistant';
+
+  let html = `<div class="bubble">${formatMessage(text)}</div>`;
+  html += '<div class="compliance-badge"><span class="badge-icon">ℹ️</span> 資訊用途</div>';
+
+  if (showAdvisorBtn) {
+    html += '<button class="advisor-btn" onclick="alert(\'此功能僅為 Demo 展示，並非真實功能。在實際產品中將引導至持牌顧問預約系統。\')">🔍 尋找持牌顧問</button>';
+  }
+
+  div.innerHTML = html;
+  msgs.appendChild(div);
+  scrollToBottom();
+}
+
+function addErrorMessage() {
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'message assistant';
+  div.innerHTML = `<div class="bubble" style="color:var(--red)">⚠️ API 連線出現問題，請檢查你嘅 API Key 是否有效，或稍後再試。</div>`;
+  msgs.appendChild(div);
+  scrollToBottom();
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function formatMessage(text) {
+  let escaped = escapeHtml(text);
+  escaped = escaped.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  escaped = escaped.replace(/\n- /g, '\n• ');
+  escaped = escaped.replace(/\n/g, '<br>');
+  return escaped;
+}
+
+// ─── API Call ───
+async function callDeepSeek(userMessage) {
+  conversationHistory.push({ role: "user", content: userMessage });
+
+  try {
+    const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "deepseek-chat",
+        max_tokens: 800,
+        messages: conversationHistory
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const reply = data.choices[0].message.content;
+
+    const isBoundary = detectBoundaryViolation(userMessage);
+    addAssistantMessage(reply, isBoundary);
+
+    conversationHistory.push({ role: "assistant", content: reply });
+
+    // Keep history manageable (trim old non-system messages if too many)
+    if (conversationHistory.length > 20) {
+      const sys = conversationHistory[0];
+      conversationHistory = [sys, ...conversationHistory.slice(-19)];
+    }
+  } catch (err) {
+    console.error("API call failed:", err);
+    // Remove the user message from history if API failed
+    conversationHistory.pop();
+    addErrorMessage();
+  }
+}
+
+// ─── Send Message ───
+async function sendMessage() {
+  if (isWaiting) return;
+
+  const input = document.getElementById('userInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  // Check for boundary violation locally even without API
+  const localBoundary = detectBoundaryViolation(msg);
+
+  input.value = '';
+  isWaiting = true;
+  document.getElementById('sendBtn').disabled = true;
+
+  addUserMessage(msg);
+
+  if (!apiKey) {
+    // Demo mode — simulate response
+    showTypingIndicator();
+    await sleep(1200 + Math.random() * 800);
+    removeTypingIndicator();
+
+    const demoReply = localBoundary
+      ? "我係資訊助手，唔係持牌投資顧問，唔可以俾你投資建議。投資決定需要考慮你個人嘅財務狀況、風險承受能力同投資目標。我建議你諮詢持牌投資顧問，或者參考官方研究報告再自行判斷。\n\n我可以幫你分析呢隻股票嘅基本資料、財務數據同行業趨勢，俾你多啲參考資訊，有需要嗎？"
+      : generateDemoReply(msg);
+
+    addAssistantMessage(demoReply, localBoundary);
+
+    conversationHistory.push({ role: "user", content: msg });
+    conversationHistory.push({ role: "assistant", content: demoReply });
+  } else {
+    showTypingIndicator();
+    await callDeepSeek(msg);
+    removeTypingIndicator();
+  }
+
+  isWaiting = false;
+  document.getElementById('sendBtn').disabled = false;
+  document.getElementById('userInput').focus();
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function generateDemoReply(msg) {
+  const lower = msg.toLowerCase();
+
+  if (lower.includes('組合') || lower.includes('portfolio') || lower.includes('表現')) {
+    return `睇返你嘅組合，目前總值 **${portfolio.totalValue}**，今日升咗 **${portfolio.dayPnL} (${portfolio.dayPnLPct})**，表現唔錯！\n\n你持有5隻股票，當中 **NVDA** 同 **騰訊 0700.HK** 貢獻最多收益。阿里巴巴 **9988.HK** 目前錄得虧損約 **-HK$9,240**，拖低咗整體回報。\n\n記住，組合表現受市場波動影響，過去表現唔代表將來回報。`;
+  }
+
+  if (lower.includes('700') || lower.includes('騰訊')) {
+    return `**騰訊控股 (0700.HK)** 係你組合入面最大持倉之一，持有500股，平均成本 HK$312.40，現價 HK$358.20，賬面盈利約 **+HK$22,900 (+14.66%)**。\n\n騰訊核心業務包括遊戲、社交媒體（微信）、金融科技及雲服務。最近幾季業績顯示遊戲業務復甦，廣告收入亦穩步增長。不過要注意監管環境同宏觀經濟對科技股嘅影響。\n\n以上僅為資訊整理，不構成投資建議。`;
+  }
+
+  if (lower.includes('nvda') || lower.includes('輝達')) {
+    return `**輝達 (NVDA)** 係你組合入面表現最強嘅持股，80股平均成本 $485.20，現價 $721.50，賬面盈利約 **+$18,904 (+48.69%)**。\n\nNVDA 受惠於 AI 晶片需求爆發，數據中心業務增長強勁。不過半導體行業週期性強，估值已經反映咗市場對 AI 嘅高預期。\n\n⚠️ 以上為資訊整理，不構成投資建議。投資涉及風險，請自行評估。`;
+  }
+
+  if (lower.includes('rsi')) {
+    return `**RSI (Relative Strength Index)** 係一個常用嘅技術指標，由 Wilder 喺1978年提出，用嚟衡量股票係「超買」定「超賣」。\n\n• **RSI > 70**：通常視為超買，可能回調\n• **RSI < 30**：通常視為超賣，可能反彈\n• RSI 數值範圍由 0 到 100\n\nRSI 可以幫你了解市場情緒，但唔應該單獨用作買賣決策，最好配合其他指標同基本面分析一齊使用。`;
+  }
+
+  if (lower.includes('風險') || lower.includes('risk')) {
+    return `睇返你嘅組合風險狀況：\n\n• 你嘅風險評級係 **進取型**，組合集中喺科技股（騰訊、NVDA、AAPL、阿里都係科技板塊）\n• 地區集中度偏高，港股同美股各佔約一半，缺乏其他市場分散\n• 現金比例約 **15%**（HKD 284,320），流動性充裕\n\n建議留意板塊集中風險，科技股波動性較高。多元化配置可以考慮加入不同行業同地區嘅資產。\n\n⚠️ 以上為風險資訊分析，不構成投資建議。`;
+  }
+
+  return `多謝你嘅問題！我係 Mia，可以幫你分析組合表現、講解財務概念、討論市場趨勢。\n\n你可以試吓問我關於你持有嘅股票（騰訊、NVDA、阿里、平安、AAPL），或者任何投資相關嘅概念。\n\n記住，我提供嘅資訊僅供參考，唔構成投資建議。`;
+}
+
+// ─── API Key Modal ───
+function saveApiKey() {
+  const input = document.getElementById('apiKeyInput');
+  const key = input.value.trim();
+  if (key) {
+    apiKey = key;
+    document.getElementById('apiModal').style.display = 'none';
+  }
+}
+
+function skipApiKey() {
+  apiKey = null;
+  document.getElementById('apiModal').style.display = 'none';
+}
+
+// ─── Event Listeners ───
+document.getElementById('userInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+// ─── Boot ───
+renderPortfolio();
+renderChips();
+</script>
+
+</body>
+</html>
