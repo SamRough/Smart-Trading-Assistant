@@ -142,6 +142,22 @@
   .chat-header-title { font-size: 16px; font-weight: 700; }
   .chat-header-subtitle { font-size: 11px; color: var(--text-muted); }
 
+  /* Language toggle */
+  .lang-toggle {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--navy);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .lang-toggle:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+
   .chat-messages {
     flex: 1; overflow-y: auto; padding: 20px 22px;
     display: flex; flex-direction: column; gap: 14px;
@@ -318,17 +334,15 @@
   <!-- LEFT — Portfolio Panel -->
   <div class="portfolio-panel" id="portfolio">
     <div class="portfolio-header">
-      <div class="label">My Portfolio</div>
+      <div class="label" data-i18n="portfolio.myPortfolio">My Portfolio</div>
       <div class="value" id="totalValue">--</div>
       <div class="pnl pnl-positive" id="dayPnL">--</div>
     </div>
 
     <div class="holdings-section">
-      <div class="section-title">Holdings</div>
+      <div class="section-title" data-i18n="portfolio.holdings">Holdings</div>
       <table class="holdings-table">
-        <thead>
-          <tr><th>Stock</th><th>Shares</th><th>Avg</th><th>Last</th><th>P&L</th><th>P&L%</th></tr>
-        </thead>
+        <thead id="holdingsHead"></thead>
         <tbody id="holdingsBody"></tbody>
       </table>
     </div>
@@ -345,37 +359,27 @@
           🤖<div class="live-dot"></div>
         </div>
         <div>
-          <div class="chat-header-title">Mia — Your AI Trading Assistant</div>
-          <div class="chat-header-subtitle">对话记录不会保存 · Online now</div>
+          <div class="chat-header-title" data-i18n="chat.headerTitle">Mia — Your AI Trading Assistant</div>
+          <div class="chat-header-subtitle" data-i18n="chat.headerSubtitle">对话记录不会保存 · Online now</div>
         </div>
       </div>
+      <button class="lang-toggle" id="langToggle" onclick="toggleLang()">EN</button>
     </div>
 
     <div class="chips-container" id="chipsContainer"></div>
 
-    <div class="chat-messages" id="chatMessages">
-      <div class="message assistant">
-        <div class="bubble">
-          👋 你好！我是 Mia，你的 AI 交易助理。<br>
-          我可以帮你分析组合表现、解读市场数据、讲解财务概念。<br>
-          有什么可以帮到你？
-        </div>
-        <div class="compliance-badge"><span class="badge-icon">ℹ️</span> 信息用途</div>
-      </div>
-    </div>
+    <div class="chat-messages" id="chatMessages"></div>
 
     <div class="input-bar">
-      <input type="text" id="userInput" placeholder="输入你的问题..." autocomplete="off">
+      <input type="text" id="userInput" data-i18n-placeholder="chat.inputPlaceholder" placeholder="输入你的问题..." autocomplete="off">
       <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
     </div>
 
-    <div class="disclaimer-strip">
-      Mia 提供信息仅供参考，不构成投资建议。投资涉及风险，请参阅相关风险披露声明。
-    </div>
+    <div class="disclaimer-strip" data-i18n="chat.disclaimer"></div>
 
     <div class="footer">
-      Smart Trading Assistant — Portfolio Demo | AI Product Manager | Hong Kong Brokerage &amp; Fintech<br>
-      本 demo 使用模拟数据，不代表真实投资组合
+      <div data-i18n="chat.footerLine1">Smart Trading Assistant — Portfolio Demo | AI Product Manager | Hong Kong Brokerage &amp; Fintech</div>
+      <div data-i18n="chat.footerLine2">本 demo 使用模拟数据，不代表真实投资组合</div>
     </div>
   </div>
 </div>
@@ -383,41 +387,63 @@
 <!-- API Key Modal -->
 <div class="modal-overlay" id="apiModal">
   <div class="modal">
-    <h3>🔑 输入 DeepSeek API Key</h3>
-    <p>API Key 仅暂存于浏览器中，不会上传至任何服务器。你可以从 DeepSeek 开发者平台获取。</p>
+    <h3 data-i18n="modal.title">🔑 输入 DeepSeek API Key</h3>
+    <p data-i18n="modal.desc">API Key 仅暂存于浏览器中，不会上传至任何服务器。你可以从 DeepSeek 开发者平台获取。</p>
     <input type="password" id="apiKeyInput" placeholder="sk-...">
-    <button class="btn-primary" onclick="saveApiKey()">开始使用</button>
-    <div class="skip-link" onclick="skipApiKey()">跳过，先看 Demo 界面</div>
+    <button class="btn-primary" id="modalSaveBtn" onclick="saveApiKey()" data-i18n="modal.startBtn">开始使用</button>
+    <div class="skip-link" onclick="skipApiKey()" data-i18n="modal.skipLink">跳过，先看 Demo 界面</div>
   </div>
 </div>
 
 <script>
-// ─── Mock Portfolio Data ───
-const portfolio = {
-  accountId: "HK****8847",
-  accountType: "现金账户 — 专业投资者",
-  riskLevel: "進取型",
-  cashBalance: "HKD 284,320",
-  totalValue: "HKD 1,847,650",
-  dayPnL: "+HKD 23,140",
-  dayPnLPct: "+1.27%",
-  holdings: [
-    { ticker: "0700.HK", name: "騰訊控股", shares: 500, avgCost: 312.40, lastPrice: 358.20, currency: "HKD" },
-    { ticker: "NVDA", name: "輝達", shares: 80, avgCost: 485.20, lastPrice: 721.50, currency: "USD" },
-    { ticker: "9988.HK", name: "阿里巴巴", shares: 1200, avgCost: 92.30, lastPrice: 84.60, currency: "HKD" },
-    { ticker: "2318.HK", name: "中國平安", shares: 2000, avgCost: 48.80, lastPrice: 51.30, currency: "HKD" },
-    { ticker: "AAPL", name: "蘋果", shares: 60, avgCost: 178.40, lastPrice: 214.20, currency: "USD" }
-  ],
-  marketSummary: [
-    { index: "恒生指數", value: "19,847", change: "+1.34%" },
-    { index: "國企指數", value: "7,124", change: "+0.87%" },
-    { index: "標普500", value: "5,842", change: "-0.23%" }
-  ]
-};
-
-// ─── System Prompt ───
-const systemPrompt = `You are Mia, an AI trading assistant embedded in a Hong Kong licensed brokerage app.
-You are helpful, knowledgeable, and conversational — speaking in the same language the user uses (Mandarin or English).
+// ─── i18n ───
+const i18n = {
+  zh: {
+    portfolio: {
+      myPortfolio: "My Portfolio",
+      holdings: "持仓明细",
+      headers: ["股票", "股数", "均价", "现价", "盈亏", "盈亏%"],
+      accountType: "账户类型",
+      riskLevel: "风险等级",
+      cashBalance: "现金结余",
+      accountTypeVal: "现金账户 — 专业投资者",
+      riskLevelVal: "进取型",
+      marketLabel: "市场概览"
+    },
+    chat: {
+      headerTitle: "Mia — 你的 AI 交易助理",
+      headerSubtitle: "对话记录不会保存 · 在线",
+      inputPlaceholder: "输入你的问题...",
+      disclaimer: "Mia 提供信息仅供参考，不构成投资建议。投资涉及风险，请参阅相关风险披露声明。",
+      footerLine1: "Smart Trading Assistant — Portfolio Demo | AI Product Manager | Hong Kong Brokerage & Fintech",
+      footerLine2: "本 demo 使用模拟数据，不代表真实投资组合",
+      welcome: "你好！我是 Mia，你的 AI 交易助理。<br>我可以帮你分析组合表现、解读市场数据、讲解财务概念。<br>有什么可以帮到你？",
+      chips: [
+        "带我看下我的组合表现",
+        "解读 0700.HK 最新业绩",
+        "我应不应该加仓 NVDA？",
+        "什么是 RSI？为什么要看这个指标？",
+        "我组合里面风险高不高？"
+      ]
+    },
+    compliance: {
+      badge: "信息用途",
+      advisorBtn: "寻找持牌顾问",
+      advisorAlert: "此功能仅为 Demo 展示，并非真实功能。在实际产品中将引导至持牌顾问预约系统。",
+      errorMsg: "API 连接出现问题，请检查你的 API Key 是否有效，或稍后再试。",
+      boundaryRefusal: "我是信息助手，不是持牌投资顾问，不可以给你投资建议。投资决定需要考虑你个人的财务状况、风险承受能力和投资目标。我建议你咨询持牌投资顾问，或者参考官方研究报告再自行判断。\n\n我可以帮你分析这只股票的基本资料、财务数据和行业趋势，给你更多参考信息，有需要吗？"
+    },
+    demoReplies: {
+      portfolio: () => `来看你的组合，目前总值 **${portfolio.totalValue}**，今日上涨 **${portfolio.dayPnL} (${portfolio.dayPnLPct})**，表现不错！\n\n你持有5只股票，其中 **NVDA** 和 **腾讯 0700.HK** 贡献最多收益。阿里巴巴 **9988.HK** 目前录得亏损约 **-HK$9,240**，拖低了整体回报。\n\n记住，组合表现受市场波动影响，过去表现不代表将来回报。`,
+      tencent: `**腾讯控股 (0700.HK)** 是你组合里面最大的持仓之一，持有500股，平均成本 HK$312.40，现价 HK$358.20，账面盈利约 **+HK$22,900 (+14.66%)**。\n\n腾讯核心业务包括游戏、社交媒体（微信）、金融科技及云服务。最近几季业绩显示游戏业务复苏，广告收入也稳步增长。不过要注意监管环境和宏观经济对科技股的影响。\n\n以上仅为信息整理，不构成投资建议。`,
+      nvda: `**辉达 (NVDA)** 是你组合里面表现最强的持股，80股平均成本 $485.20，现价 $721.50，账面盈利约 **+$18,904 (+48.69%)**。\n\nNVDA 受惠于 AI 芯片需求爆发，数据中心业务增长强劲。不过半导体行业周期性强，估值已经反映了市场对 AI 的高预期。\n\n⚠️ 以上为信息整理，不构成投资建议。投资涉及风险，请自行评估。`,
+      rsi: `**RSI (Relative Strength Index)** 是一个常用的技术指标，由 Wilder 在1978年提出，用来衡量股票是「超买」还是「超卖」。\n\n• **RSI > 70**：通常视为超买，可能回调\n• **RSI < 30**：通常视为超卖，可能反弹\n• RSI 数值范围从 0 到 100\n\nRSI 可以帮你了解市场情绪，但不应该单独用作买卖决策，最好配合其他指标和基本面分析一起使用。`,
+      risk: `来看你的组合风险状况：\n\n• 你的风险评级是 **进取型**，组合集中在科技股（腾讯、NVDA、AAPL、阿里都是科技板块）\n• 地区集中度偏高，港股和美股各占约一半，缺乏其他市场分散\n• 现金比例约 **15%**（HKD 284,320），流动性充裕\n\n建议留意板块集中风险，科技股波动性较高。多元化配置可以考虑加入不同行业和地区的资产。\n\n⚠️ 以上为风险信息分析，不构成投资建议。`,
+      fallback: `谢谢你的问题！我是 Mia，可以帮你分析组合表现、讲解财务概念、讨论市场趋势。\n\n你可以试着问我关于你持有的股票（腾讯、NVDA、阿里、平安、AAPL），或者任何投资相关的概念。\n\n记住，我提供的信息仅供参考，不构成投资建议。`
+    },
+    systemPrompt: `You are Mia, an AI trading assistant embedded in a Hong Kong licensed brokerage app.
+You are helpful, knowledgeable, and conversational — speak in the same language the user uses.
+If the user writes in Chinese, reply in Chinese. If in English, reply in English.
 
 You have access to the user's portfolio:
 ${JSON.stringify(portfolio, null, 2)}
@@ -429,20 +455,146 @@ Your capabilities:
 - Help users understand risk exposure in their portfolio
 
 Your hard boundaries (CRITICAL — never cross these):
-- NEVER give specific buy/sell/hold recommendations ("你应该买/卖" is forbidden)
+- NEVER give specific buy/sell/hold recommendations
 - NEVER predict price targets or future performance
 - ALWAYS add appropriate risk disclaimers when discussing specific stocks
-- If asked for direct investment advice, explain clearly: "我是信息助手，不是持牌投资顾问，不可以给你投资建议。"
+- If asked for direct investment advice, explain clearly that you are an information assistant, not a licensed investment advisor, and cannot give investment advice.
 - NEVER discuss margin lending specifics, derivatives strategies, or leveraged products in detail
 
 Your tone: warm, smart, conversational. Like a knowledgeable friend who works in finance.
 Keep responses concise — 3-5 sentences for simple questions, slightly longer for complex ones.
-Format with light markdown where helpful (bold for key figures, bullet points for lists).`;
+Format with light markdown where helpful (bold for key figures, bullet points for lists).`,
+    modal: {
+      title: "🔑 输入 DeepSeek API Key",
+      desc: "API Key 仅暂存于浏览器中，不会上传至任何服务器。你可以从 DeepSeek 开发者平台获取。",
+      startBtn: "开始使用",
+      skipLink: "跳过，先看 Demo 界面"
+    }
+  },
+
+  en: {
+    portfolio: {
+      myPortfolio: "My Portfolio",
+      holdings: "Holdings",
+      headers: ["Stock", "Shares", "Avg", "Last", "P&L", "P&L%"],
+      accountType: "Account Type",
+      riskLevel: "Risk Level",
+      cashBalance: "Cash Balance",
+      accountTypeVal: "Cash Account — Professional Investor",
+      riskLevelVal: "Aggressive",
+      marketLabel: "Market Summary"
+    },
+    chat: {
+      headerTitle: "Mia — Your AI Trading Assistant",
+      headerSubtitle: "Session not recorded · Online now",
+      inputPlaceholder: "Ask me anything...",
+      disclaimer: "Mia provides information for reference only and does not constitute investment advice. Investing involves risks. Please refer to the relevant risk disclosure statements.",
+      footerLine1: "Smart Trading Assistant — Portfolio Demo | AI Product Manager | Hong Kong Brokerage & Fintech",
+      footerLine2: "This demo uses simulated data and does not represent a real investment portfolio.",
+      welcome: "Hi there! I'm Mia, your AI trading assistant.<br>I can help analyze your portfolio, explain market data, and break down financial concepts.<br>What can I help you with?",
+      chips: [
+        "Show me my portfolio performance",
+        "Analyze 0700.HK recent earnings",
+        "Should I add more NVDA?",
+        "What is RSI? Why should I watch it?",
+        "How risky is my portfolio?"
+      ]
+    },
+    compliance: {
+      badge: "For information only",
+      advisorBtn: "Find a Licensed Advisor",
+      advisorAlert: "This feature is a demo only. In production, this would redirect to a licensed advisor booking system.",
+      errorMsg: "API connection error. Please check your API Key or try again later.",
+      boundaryRefusal: "I'm an information assistant, not a licensed investment advisor — I can't give you direct investment advice.\n\nInvestment decisions should consider your personal financial situation, risk tolerance, and goals. I'd suggest consulting a licensed financial advisor, or reviewing official research reports before making your own decision.\n\nI can still help you analyze this stock's fundamentals, financials, and industry trends — would that be useful?"
+    },
+    demoReplies: {
+      portfolio: () => `Let's look at your portfolio. Total value: **${portfolio.totalValue}**, up **${portfolio.dayPnL} (${portfolio.dayPnLPct})** today — not bad!\n\nYou hold 5 stocks, with **NVDA** and **Tencent 0700.HK** as the top contributors. Alibaba **9988.HK** is currently showing a loss of about **-HK$9,240**, dragging down overall returns.\n\nRemember, portfolio performance is affected by market volatility — past performance is no guarantee of future returns.`,
+      tencent: `**Tencent Holdings (0700.HK)** is one of your largest positions — 500 shares at an average cost of HK$312.40, currently trading at HK$358.20. Unrealized gain: approximately **+HK$22,900 (+14.66%)**.\n\nTencent's core businesses include gaming, social media (WeChat), fintech, and cloud services. Recent quarterly results show a gaming recovery and steady ad revenue growth. However, keep an eye on the regulatory environment and macro headwinds for Chinese tech.\n\nThe above is information only and does not constitute investment advice.`,
+      nvda: `**NVIDIA (NVDA)** is the strongest performer in your portfolio — 80 shares at an average cost of $485.20, now at $721.50. Unrealized gain: approximately **+$18,904 (+48.69%)**.\n\nNVDA has benefited from explosive AI chip demand, with data center revenue growing strongly. That said, the semiconductor industry is highly cyclical, and valuations already reflect high AI growth expectations.\n\n⚠️ The above is information only — not investment advice. Investing involves risk.`,
+      rsi: `**RSI (Relative Strength Index)** is a widely-used momentum indicator created by Wilder in 1978. It measures whether a stock is "overbought" or "oversold."\n\n• **RSI > 70**: typically overbought — may see a pullback\n• **RSI < 30**: typically oversold — may see a bounce\n• RSI ranges from 0 to 100\n\nRSI can help gauge market sentiment, but shouldn't be used in isolation for buy/sell decisions. Combine it with other indicators and fundamental analysis.`,
+      risk: `Let's review your portfolio risk profile:\n\n• Risk rating: **Aggressive** — your portfolio is concentrated in tech (Tencent, NVDA, AAPL, Alibaba are all tech)\n• Regional concentration is relatively high — roughly split between HK and US stocks, with limited diversification elsewhere\n• Cash position: roughly **15%** (HKD 284,320) — ample liquidity\n\nConsider watching sector concentration risk — tech tends to be more volatile. Diversifying into other sectors and regions may help.\n\n⚠️ This is a risk information analysis, not investment advice.`,
+      fallback: `Thanks for your question! I'm Mia — I can help you analyze your portfolio, explain financial concepts, and discuss market trends.\n\nTry asking me about your holdings (Tencent, NVDA, Alibaba, Ping An, AAPL) or any investment-related concepts.\n\nRemember, I provide information for reference only — not investment advice.`
+    },
+    systemPrompt: `You are Mia, an AI trading assistant embedded in a Hong Kong licensed brokerage app.
+You are helpful, knowledgeable, and conversational — speak in the same language the user uses.
+If the user writes in Chinese, reply in Chinese. If in English, reply in English.
+
+You have access to the user's portfolio:
+${JSON.stringify(portfolio, null, 2)}
+
+Your capabilities:
+- Explain the user's portfolio performance and individual holdings
+- Explain financial concepts clearly (technical indicators, valuation metrics, market terms)
+- Discuss market trends and news context (note your knowledge cutoff: early 2025)
+- Help users understand risk exposure in their portfolio
+
+Your hard boundaries (CRITICAL — never cross these):
+- NEVER give specific buy/sell/hold recommendations
+- NEVER predict price targets or future performance
+- ALWAYS add appropriate risk disclaimers when discussing specific stocks
+- If asked for direct investment advice, explain clearly that you are an information assistant, not a licensed investment advisor, and cannot give investment advice.
+- NEVER discuss margin lending specifics, derivatives strategies, or leveraged products in detail
+
+Your tone: warm, smart, conversational. Like a knowledgeable friend who works in finance.
+Keep responses concise — 3-5 sentences for simple questions, slightly longer for complex ones.
+Format with light markdown where helpful (bold for key figures, bullet points for lists).`,
+    modal: {
+      title: "🔑 Enter DeepSeek API Key",
+      desc: "Your API key is stored in your browser only and is never uploaded to any server. Get one from the DeepSeek developer platform.",
+      startBtn: "Get Started",
+      skipLink: "Skip — view demo first"
+    }
+  }
+};
+
+// ─── Helpers ───
+function t(path) {
+  const keys = path.split('.');
+  let val = i18n[currentLang];
+  for (const k of keys) {
+    if (val == null) return path;
+    val = val[k];
+  }
+  return val ?? path;
+}
+
+function hasCJK(text) {
+  return /[一-鿿㐀-䶿]/.test(text);
+}
+
+// ─── Mock Portfolio Data ───
+const portfolio = {
+  accountId: "HK****8847",
+  totalValue: "HKD 1,847,650",
+  dayPnL: "+HKD 23,140",
+  dayPnLPct: "+1.27%",
+  holdings: [
+    { ticker: "0700.HK", nameZh: "腾讯控股", nameEn: "Tencent", shares: 500, avgCost: 312.40, lastPrice: 358.20, currency: "HKD" },
+    { ticker: "NVDA", nameZh: "辉达", nameEn: "NVIDIA", shares: 80, avgCost: 485.20, lastPrice: 721.50, currency: "USD" },
+    { ticker: "9988.HK", nameZh: "阿里巴巴", nameEn: "Alibaba", shares: 1200, avgCost: 92.30, lastPrice: 84.60, currency: "HKD" },
+    { ticker: "2318.HK", nameZh: "中国平安", nameEn: "Ping An", shares: 2000, avgCost: 48.80, lastPrice: 51.30, currency: "HKD" },
+    { ticker: "AAPL", nameZh: "苹果", nameEn: "Apple", shares: 60, avgCost: 178.40, lastPrice: 214.20, currency: "USD" }
+  ],
+  marketSummary: [
+    { indexZh: "恒生指数", indexEn: "Hang Seng", value: "19,847", change: "+1.34%" },
+    { indexZh: "国企指数", indexEn: "HSCEI", value: "7,124", change: "+0.87%" },
+    { indexZh: "标普500", indexEn: "S&P 500", value: "5,842", change: "-0.23%" }
+  ]
+};
 
 // ─── State ───
+let currentLang = localStorage.getItem('lang') || 'zh';
 let apiKey = null;
-let conversationHistory = [{ role: "system", content: systemPrompt }];
+let conversationHistory = [];
 let isWaiting = false;
+
+function getSystemPrompt() {
+  return i18n[currentLang].systemPrompt;
+}
+
+function resetConversation() {
+  conversationHistory = [{ role: "system", content: getSystemPrompt() }];
+}
 
 // ─── Initialize UI ───
 function renderPortfolio() {
@@ -450,8 +602,14 @@ function renderPortfolio() {
   document.getElementById('totalValue').textContent = portfolio.totalValue;
   document.getElementById('dayPnL').textContent = `${portfolio.dayPnL} (${portfolio.dayPnLPct})`;
 
-  // Holdings
+  // Holdings headers
+  document.getElementById('holdingsHead').innerHTML = '<tr>' +
+    t('portfolio.headers').map(h => `<th>${h}</th>`).join('') +
+    '</tr>';
+
+  // Holdings body
   const tbody = document.getElementById('holdingsBody');
+  tbody.innerHTML = '';
   portfolio.holdings.forEach(h => {
     const shares = h.shares.toLocaleString();
     const avg = `${h.currency === 'HKD' ? 'HK$' : '$'}${h.avgCost.toFixed(2)}`;
@@ -461,10 +619,11 @@ function renderPortfolio() {
     const pnlPct = (((h.lastPrice - h.avgCost) / h.avgCost) * 100);
     const pnlClass = pnlPct >= 0 ? 'pnl-positive' : 'pnl-negative';
     const pnlPctStr = `${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(2)}%`;
+    const name = currentLang === 'zh' ? h.nameZh : h.nameEn;
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td><div class="ticker">${h.ticker}</div><div class="name">${h.name}</div></td>
+      <td><div class="ticker">${h.ticker}</div><div class="name">${name}</div></td>
       <td>${shares}</td>
       <td>${avg}</td>
       <td>${last}</td>
@@ -476,12 +635,14 @@ function renderPortfolio() {
 
   // Market Summary
   const msDiv = document.getElementById('marketSummary');
+  msDiv.innerHTML = '';
   portfolio.marketSummary.forEach(m => {
     const isNeg = m.change.startsWith('-');
+    const idxName = currentLang === 'zh' ? m.indexZh : m.indexEn;
     const row = document.createElement('div');
     row.className = 'market-row';
     row.innerHTML = `
-      <span class="idx">${m.index}</span>
+      <span class="idx">${idxName}</span>
       <span class="val">${m.value}</span>
       <span class="chg" style="color:${isNeg ? 'var(--red)' : 'var(--green)'}">${m.change}</span>
     `;
@@ -490,12 +651,13 @@ function renderPortfolio() {
 
   // Account Strip
   const accDiv = document.getElementById('accountStrip');
-  const chips = [
-    { label: '账户类型', value: portfolio.accountType },
-    { label: '风险等级', value: portfolio.riskLevel },
-    { label: '现金结余', value: portfolio.cashBalance }
+  accDiv.innerHTML = '';
+  const accChips = [
+    { label: t('portfolio.accountType'), value: t('portfolio.accountTypeVal') },
+    { label: t('portfolio.riskLevel'), value: t('portfolio.riskLevelVal') },
+    { label: t('portfolio.cashBalance'), value: portfolio.cashBalance || "HKD 284,320" }
   ];
-  chips.forEach(c => {
+  accChips.forEach(c => {
     const chip = document.createElement('div');
     chip.className = 'account-chip';
     chip.innerHTML = `<span class="chip-label">${c.label}</span><span class="chip-value">${c.value}</span>`;
@@ -504,15 +666,9 @@ function renderPortfolio() {
 }
 
 function renderChips() {
-  const chips = [
-    "带我看下我的组合表现",
-    "解读 0700.HK 最新业绩",
-    "我应不应该加仓 NVDA？",
-    "什么是 RSI？为什么要看这个指标？",
-    "我组合里面风险高不高？"
-  ];
   const container = document.getElementById('chipsContainer');
-  chips.forEach(text => {
+  container.innerHTML = '';
+  t('chat.chips').forEach(text => {
     const chip = document.createElement('div');
     chip.className = 'chip';
     chip.textContent = text;
@@ -522,6 +678,57 @@ function renderChips() {
     });
     container.appendChild(chip);
   });
+}
+
+function renderWelcomeMessage() {
+  const msgs = document.getElementById('chatMessages');
+  // Remove any existing welcome message
+  const existing = msgs.querySelector('.message.welcome');
+  if (existing) existing.remove();
+
+  const div = document.createElement('div');
+  div.className = 'message assistant welcome';
+  div.innerHTML = `
+    <div class="bubble">👋 ${t('chat.welcome')}</div>
+    <div class="compliance-badge"><span class="badge-icon">ℹ️</span> ${t('compliance.badge')}</div>
+  `;
+  msgs.prepend(div);
+}
+
+function applyI18n() {
+  // HTML lang
+  document.documentElement.lang = currentLang === 'zh' ? 'zh-CN' : 'en';
+
+  // Lang toggle button
+  document.getElementById('langToggle').textContent = currentLang === 'zh' ? 'EN' : '中';
+
+  // data-i18n textContent
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.dataset.i18n);
+  });
+
+  // data-i18n-placeholder
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = t(el.dataset.i18nPlaceholder);
+  });
+
+  // Re-render dynamic panels
+  renderPortfolio();
+  renderChips();
+  renderWelcomeMessage();
+
+  // Update modal button
+  const saveBtn = document.getElementById('modalSaveBtn');
+  if (saveBtn) saveBtn.textContent = t('modal.startBtn');
+
+  // Reset system prompt
+  resetConversation();
+}
+
+function toggleLang() {
+  currentLang = currentLang === 'zh' ? 'en' : 'zh';
+  localStorage.setItem('lang', currentLang);
+  applyI18n();
 }
 
 // ─── Chat Functions ───
@@ -560,46 +767,39 @@ function removeTypingIndicator() {
   if (el) el.remove();
 }
 
+function replyLang(userMessage) {
+  return hasCJK(userMessage) ? 'zh' : 'en';
+}
+
 function detectBoundaryViolation(userMessage) {
   const lower = userMessage.toLowerCase();
   const patterns = [
-    /应不应该买/,
-    /应不应该卖/,
-    /应该买/,
-    /应该卖/,
-    /应该入手/,
-    /应该卖出/,
-    /应该抛/,
-    /值不值得买/,
-    /值不值得投资/,
-    /可不可以买/,
-    /可不可以卖/,
-    /能不能买/,
-    /能不能卖/,
-    /该不该加仓/,
-    /该不该减仓/,
-    /buy.*recommend/,
-    /sell.*recommend/,
-    /should i buy/,
-    /should i sell/,
-    /is it a good time/,
-    /what price.*target/,
-    /target price/,
-    /price prediction/,
+    // Chinese (Simplified)
+    /应不应该买/, /应不应该卖/, /应该买/, /应该卖/,
+    /应该入手/, /应该卖出/, /应该抛/,
+    /值不值得买/, /值不值得投资/,
+    /可不可以买/, /可不可以卖/,
+    /能不能买/, /能不能卖/,
+    /该不该加仓/, /该不该减仓/,
+    // English
+    /should i buy/, /should i sell/,
+    /buy.*recommend/, /sell.*recommend/,
+    /is it a good time/, /what price.*target/,
+    /target price/, /price prediction/,
   ];
   return patterns.some(p => p.test(lower));
 }
 
-function addAssistantMessage(text, showAdvisorBtn = false) {
+function addAssistantMessage(text, showAdvisorBtn = false, langOverride = null) {
   const msgs = document.getElementById('chatMessages');
   const div = document.createElement('div');
   div.className = 'message assistant';
 
   let html = `<div class="bubble">${formatMessage(text)}</div>`;
-  html += '<div class="compliance-badge"><span class="badge-icon">ℹ️</span> 信息用途</div>';
+  html += `<div class="compliance-badge"><span class="badge-icon">ℹ️</span> ${t('compliance.badge')}</div>`;
 
   if (showAdvisorBtn) {
-    html += '<button class="advisor-btn" onclick="alert(\'此功能仅为 Demo 展示，并非真实功能。在实际产品中将引导至持牌顾问预约系统。\')">🔍 寻找持牌顾问</button>';
+    html += `<button class="advisor-btn" onclick="alert('${escapeHtml(t('compliance.advisorAlert'))}')">🔍 ${t('compliance.advisorBtn')}</button>`;
   }
 
   div.innerHTML = html;
@@ -611,7 +811,7 @@ function addErrorMessage() {
   const msgs = document.getElementById('chatMessages');
   const div = document.createElement('div');
   div.className = 'message assistant';
-  div.innerHTML = `<div class="bubble" style="color:var(--red)">⚠️ API 连接出现问题，请检查你的 API Key 是否有效，或稍后再试。</div>`;
+  div.innerHTML = `<div class="bubble" style="color:var(--red)">⚠️ ${t('compliance.errorMsg')}</div>`;
   msgs.appendChild(div);
   scrollToBottom();
 }
@@ -656,18 +856,17 @@ async function callDeepSeek(userMessage) {
     const reply = data.choices[0].message.content;
 
     const isBoundary = detectBoundaryViolation(userMessage);
-    addAssistantMessage(reply, isBoundary);
+    const lang = replyLang(userMessage);
+    addAssistantMessage(reply, isBoundary, lang);
 
     conversationHistory.push({ role: "assistant", content: reply });
 
-    // Keep history manageable (trim old non-system messages if too many)
     if (conversationHistory.length > 20) {
       const sys = conversationHistory[0];
       conversationHistory = [sys, ...conversationHistory.slice(-19)];
     }
   } catch (err) {
     console.error("API call failed:", err);
-    // Remove the user message from history if API failed
     conversationHistory.pop();
     addErrorMessage();
   }
@@ -681,8 +880,8 @@ async function sendMessage() {
   const msg = input.value.trim();
   if (!msg) return;
 
-  // Check for boundary violation locally even without API
   const localBoundary = detectBoundaryViolation(msg);
+  const lang = replyLang(msg);
 
   input.value = '';
   isWaiting = true;
@@ -691,16 +890,15 @@ async function sendMessage() {
   addUserMessage(msg);
 
   if (!apiKey) {
-    // Demo mode — simulate response
     showTypingIndicator();
     await sleep(1200 + Math.random() * 800);
     removeTypingIndicator();
 
     const demoReply = localBoundary
-      ? "我是信息助手，不是持牌投资顾问，不可以给你投资建议。投资决定需要考虑你个人的财务状况、风险承受能力和投资目标。我建议你咨询持牌投资顾问，或者参考官方研究报告再自行判断。\n\n我可以帮你分析这只股票的基本资料、财务数据和行业趋势，给你更多参考信息，有需要吗？"
-      : generateDemoReply(msg);
+      ? i18n[lang].compliance.boundaryRefusal
+      : generateDemoReply(msg, lang);
 
-    addAssistantMessage(demoReply, localBoundary);
+    addAssistantMessage(demoReply, localBoundary, lang);
 
     conversationHistory.push({ role: "user", content: msg });
     conversationHistory.push({ role: "assistant", content: demoReply });
@@ -717,46 +915,50 @@ async function sendMessage() {
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-function generateDemoReply(msg) {
+function generateDemoReply(msg, lang) {
   const lower = msg.toLowerCase();
+  const R = i18n[lang].demoReplies;
 
-  if (lower.includes('组合') || lower.includes('portfolio') || lower.includes('表现')) {
-    return `来看你的组合，目前总值 **${portfolio.totalValue}**，今日上涨 **${portfolio.dayPnL} (${portfolio.dayPnLPct})**，表现不错！\n\n你持有5只股票，其中 **NVDA** 和 **腾讯 0700.HK** 贡献最多收益。阿里巴巴 **9988.HK** 目前录得亏损约 **-HK$9,240**，拖低了整体回报。\n\n记住，组合表现受市场波动影响，过去表现不代表将来回报。`;
+  if (lower.includes('组合') || lower.includes('portfolio') || lower.includes('表现') || lower.includes('performance')) {
+    return R.portfolio();
   }
 
-  if (lower.includes('700') || lower.includes('腾讯')) {
-    return `**腾讯控股 (0700.HK)** 是你组合里面最大的持仓之一，持有500股，平均成本 HK$312.40，现价 HK$358.20，账面盈利约 **+HK$22,900 (+14.66%)**。\n\n腾讯核心业务包括游戏、社交媒体（微信）、金融科技及云服务。最近几季业绩显示游戏业务复苏，广告收入也稳步增长。不过要注意监管环境和宏观经济对科技股的影响。\n\n以上仅为信息整理，不构成投资建议。`;
+  if (lower.includes('700') || lower.includes('腾讯') || lower.includes('tencent')) {
+    return R.tencent;
   }
 
-  if (lower.includes('nvda') || lower.includes('辉达')) {
-    return `**辉达 (NVDA)** 是你组合里面表现最强的持股，80股平均成本 $485.20，现价 $721.50，账面盈利约 **+$18,904 (+48.69%)**。\n\nNVDA 受惠于 AI 芯片需求爆发，数据中心业务增长强劲。不过半导体行业周期性强，估值已经反映了市场对 AI 的高预期。\n\n⚠️ 以上为信息整理，不构成投资建议。投资涉及风险，请自行评估。`;
+  if (lower.includes('nvda') || lower.includes('辉达') || lower.includes('nvidia')) {
+    return R.nvda;
   }
 
   if (lower.includes('rsi')) {
-    return `**RSI (Relative Strength Index)** 是一个常用的技术指标，由 Wilder 在1978年提出，用来衡量股票是「超买」还是「超卖」。\n\n• **RSI > 70**：通常视为超买，可能回调\n• **RSI < 30**：通常视为超卖，可能反弹\n• RSI 数值范围从 0 到 100\n\nRSI 可以帮你了解市场情绪，但不应该单独用作买卖决策，最好配合其他指标和基本面分析一起使用。`;
+    return R.rsi;
   }
 
-  if (lower.includes('风险') || lower.includes('risk')) {
-    return `来看你的组合风险状况：\n\n• 你的风险评级是 **进取型**，组合集中在科技股（腾讯、NVDA、AAPL、阿里都是科技板块）\n• 地区集中度偏高，港股和美股各占约一半，缺乏其他市场分散\n• 现金比例约 **15%**（HKD 284,320），流动性充裕\n\n建议留意板块集中风险，科技股波动性较高。多元化配置可以考虑加入不同行业和地区的资产。\n\n⚠️ 以上为风险信息分析，不构成投资建议。`;
+  if (lower.includes('风险') || lower.includes('risk') || lower.includes('風險')) {
+    return R.risk;
   }
 
-  return `谢谢你的问题！我是 Mia，可以帮你分析组合表现、讲解财务概念、讨论市场趋势。\n\n你可以试着问我关于你持有的股票（腾讯、NVDA、阿里、平安、AAPL），或者任何投资相关的概念。\n\n记住，我提供的信息仅供参考，不构成投资建议。`;
+  return R.fallback;
 }
 
 // ─── API Key Modal ───
 function saveApiKey() {
   const input = document.getElementById('apiKeyInput');
   const key = input.value.trim();
-  if (key) {
-    apiKey = key;
-    document.getElementById('apiModal').style.display = 'none';
-  }
+  apiKey = key || null;
+  document.getElementById('apiModal').style.display = 'none';
 }
 
 function skipApiKey() {
   apiKey = null;
   document.getElementById('apiModal').style.display = 'none';
 }
+
+// Allow pressing Enter in the API key input to submit
+document.getElementById('apiKeyInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') saveApiKey();
+});
 
 // ─── Event Listeners ───
 document.getElementById('userInput').addEventListener('keydown', function(e) {
@@ -767,8 +969,14 @@ document.getElementById('userInput').addEventListener('keydown', function(e) {
 });
 
 // ─── Boot ───
+resetConversation();
 renderPortfolio();
 renderChips();
+renderWelcomeMessage();
+applyI18n();
+
+// Set initial lang toggle button text
+document.getElementById('langToggle').textContent = currentLang === 'zh' ? 'EN' : '中';
 </script>
 
 </body>
