@@ -396,6 +396,26 @@
 </div>
 
 <script>
+// ─── Mock Portfolio Data (must be before i18n — referenced in systemPrompt template literal) ───
+const portfolio = {
+  accountId: "HK****8847",
+  totalValue: "HKD 1,847,650",
+  dayPnL: "+HKD 23,140",
+  dayPnLPct: "+1.27%",
+  holdings: [
+    { ticker: "0700.HK", nameZh: "腾讯控股", nameEn: "Tencent", shares: 500, avgCost: 312.40, lastPrice: 358.20, currency: "HKD" },
+    { ticker: "NVDA", nameZh: "辉达", nameEn: "NVIDIA", shares: 80, avgCost: 485.20, lastPrice: 721.50, currency: "USD" },
+    { ticker: "9988.HK", nameZh: "阿里巴巴", nameEn: "Alibaba", shares: 1200, avgCost: 92.30, lastPrice: 84.60, currency: "HKD" },
+    { ticker: "2318.HK", nameZh: "中国平安", nameEn: "Ping An", shares: 2000, avgCost: 48.80, lastPrice: 51.30, currency: "HKD" },
+    { ticker: "AAPL", nameZh: "苹果", nameEn: "Apple", shares: 60, avgCost: 178.40, lastPrice: 214.20, currency: "USD" }
+  ],
+  marketSummary: [
+    { indexZh: "恒生指数", indexEn: "Hang Seng", value: "19,847", change: "+1.34%" },
+    { indexZh: "国企指数", indexEn: "HSCEI", value: "7,124", change: "+0.87%" },
+    { indexZh: "标普500", indexEn: "S&P 500", value: "5,842", change: "-0.23%" }
+  ]
+};
+
 // ─── i18n ───
 const i18n = {
   zh: {
@@ -562,25 +582,7 @@ function hasCJK(text) {
   return /[一-鿿㐀-䶿]/.test(text);
 }
 
-// ─── Mock Portfolio Data ───
-const portfolio = {
-  accountId: "HK****8847",
-  totalValue: "HKD 1,847,650",
-  dayPnL: "+HKD 23,140",
-  dayPnLPct: "+1.27%",
-  holdings: [
-    { ticker: "0700.HK", nameZh: "腾讯控股", nameEn: "Tencent", shares: 500, avgCost: 312.40, lastPrice: 358.20, currency: "HKD" },
-    { ticker: "NVDA", nameZh: "辉达", nameEn: "NVIDIA", shares: 80, avgCost: 485.20, lastPrice: 721.50, currency: "USD" },
-    { ticker: "9988.HK", nameZh: "阿里巴巴", nameEn: "Alibaba", shares: 1200, avgCost: 92.30, lastPrice: 84.60, currency: "HKD" },
-    { ticker: "2318.HK", nameZh: "中国平安", nameEn: "Ping An", shares: 2000, avgCost: 48.80, lastPrice: 51.30, currency: "HKD" },
-    { ticker: "AAPL", nameZh: "苹果", nameEn: "Apple", shares: 60, avgCost: 178.40, lastPrice: 214.20, currency: "USD" }
-  ],
-  marketSummary: [
-    { indexZh: "恒生指数", indexEn: "Hang Seng", value: "19,847", change: "+1.34%" },
-    { indexZh: "国企指数", indexEn: "HSCEI", value: "7,124", change: "+0.87%" },
-    { indexZh: "标普500", indexEn: "S&P 500", value: "5,842", change: "-0.23%" }
-  ]
-};
+// (portfolio defined above — moved before i18n)
 
 // ─── State ───
 let currentLang = localStorage.getItem('lang') || 'zh';
