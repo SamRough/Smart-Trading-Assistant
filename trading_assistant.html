@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-HK">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -346,7 +346,7 @@
         </div>
         <div>
           <div class="chat-header-title">Mia — Your AI Trading Assistant</div>
-          <div class="chat-header-subtitle">對話記錄不會儲存 · Online now</div>
+          <div class="chat-header-subtitle">对话记录不会保存 · Online now</div>
         </div>
       </div>
     </div>
@@ -356,26 +356,26 @@
     <div class="chat-messages" id="chatMessages">
       <div class="message assistant">
         <div class="bubble">
-          👋 你好！我係 Mia，你嘅 AI 交易助理。<br>
-          我可以幫你分析組合表現、解讀市場數據、講解財務概念。<br>
-          有咩可以幫到你？
+          👋 你好！我是 Mia，你的 AI 交易助理。<br>
+          我可以帮你分析组合表现、解读市场数据、讲解财务概念。<br>
+          有什么可以帮到你？
         </div>
-        <div class="compliance-badge"><span class="badge-icon">ℹ️</span> 資訊用途</div>
+        <div class="compliance-badge"><span class="badge-icon">ℹ️</span> 信息用途</div>
       </div>
     </div>
 
     <div class="input-bar">
-      <input type="text" id="userInput" placeholder="輸入你嘅問題..." autocomplete="off">
+      <input type="text" id="userInput" placeholder="输入你的问题..." autocomplete="off">
       <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
     </div>
 
     <div class="disclaimer-strip">
-      Mia 提供資訊僅供參考，不構成投資建議。投資涉及風險，請參閱相關風險披露聲明。
+      Mia 提供信息仅供参考，不构成投资建议。投资涉及风险，请参阅相关风险披露声明。
     </div>
 
     <div class="footer">
       Smart Trading Assistant — Portfolio Demo | AI Product Manager | Hong Kong Brokerage &amp; Fintech<br>
-      本 demo 使用模擬數據，不代表真實投資組合
+      本 demo 使用模拟数据，不代表真实投资组合
     </div>
   </div>
 </div>
@@ -383,11 +383,11 @@
 <!-- API Key Modal -->
 <div class="modal-overlay" id="apiModal">
   <div class="modal">
-    <h3>🔑 輸入 DeepSeek API Key</h3>
-    <p>API Key 僅暫存於瀏覽器中，不會上傳至任何伺服器。你可以從 DeepSeek 開發者平台獲取。</p>
+    <h3>🔑 输入 DeepSeek API Key</h3>
+    <p>API Key 仅暂存于浏览器中，不会上传至任何服务器。你可以从 DeepSeek 开发者平台获取。</p>
     <input type="password" id="apiKeyInput" placeholder="sk-...">
-    <button class="btn-primary" onclick="saveApiKey()">開始使用</button>
-    <div class="skip-link" onclick="skipApiKey()">跳過，先睇 Demo 介面</div>
+    <button class="btn-primary" onclick="saveApiKey()">开始使用</button>
+    <div class="skip-link" onclick="skipApiKey()">跳过，先看 Demo 界面</div>
   </div>
 </div>
 
@@ -395,7 +395,7 @@
 // ─── Mock Portfolio Data ───
 const portfolio = {
   accountId: "HK****8847",
-  accountType: "現金戶口 — 專業投資者",
+  accountType: "现金账户 — 专业投资者",
   riskLevel: "進取型",
   cashBalance: "HKD 284,320",
   totalValue: "HKD 1,847,650",
@@ -417,7 +417,7 @@ const portfolio = {
 
 // ─── System Prompt ───
 const systemPrompt = `You are Mia, an AI trading assistant embedded in a Hong Kong licensed brokerage app.
-You are helpful, knowledgeable, and conversational — speaking in the same language the user uses (Cantonese, Mandarin, or English).
+You are helpful, knowledgeable, and conversational — speaking in the same language the user uses (Mandarin or English).
 
 You have access to the user's portfolio:
 ${JSON.stringify(portfolio, null, 2)}
@@ -429,10 +429,10 @@ Your capabilities:
 - Help users understand risk exposure in their portfolio
 
 Your hard boundaries (CRITICAL — never cross these):
-- NEVER give specific buy/sell/hold recommendations ("你應該買/賣" is forbidden)
+- NEVER give specific buy/sell/hold recommendations ("你应该买/卖" is forbidden)
 - NEVER predict price targets or future performance
 - ALWAYS add appropriate risk disclaimers when discussing specific stocks
-- If asked for direct investment advice, explain clearly: "我係資訊助手，唔係持牌投資顧問，唔可以俾你投資建議。"
+- If asked for direct investment advice, explain clearly: "我是信息助手，不是持牌投资顾问，不可以给你投资建议。"
 - NEVER discuss margin lending specifics, derivatives strategies, or leveraged products in detail
 
 Your tone: warm, smart, conversational. Like a knowledgeable friend who works in finance.
@@ -491,9 +491,9 @@ function renderPortfolio() {
   // Account Strip
   const accDiv = document.getElementById('accountStrip');
   const chips = [
-    { label: '帳戶類型', value: portfolio.accountType },
-    { label: '風險等級', value: portfolio.riskLevel },
-    { label: '現金結餘', value: portfolio.cashBalance }
+    { label: '账户类型', value: portfolio.accountType },
+    { label: '风险等级', value: portfolio.riskLevel },
+    { label: '现金结余', value: portfolio.cashBalance }
   ];
   chips.forEach(c => {
     const chip = document.createElement('div');
@@ -505,11 +505,11 @@ function renderPortfolio() {
 
 function renderChips() {
   const chips = [
-    "帶我睇下我個組合表現",
-    "解讀吓 0700.HK 最新業績",
-    "我應唔應該加注 NVDA？",
-    "咩係 RSI？點解要睇呢個指標？",
-    "我組合入面風險高唔高？"
+    "带我看下我的组合表现",
+    "解读 0700.HK 最新业绩",
+    "我应不应该加仓 NVDA？",
+    "什么是 RSI？为什么要看这个指标？",
+    "我组合里面风险高不高？"
   ];
   const container = document.getElementById('chipsContainer');
   chips.forEach(text => {
@@ -563,22 +563,21 @@ function removeTypingIndicator() {
 function detectBoundaryViolation(userMessage) {
   const lower = userMessage.toLowerCase();
   const patterns = [
-    /應唔應該買/,
-    /應唔應該賣/,
-    /應該買/,
-    /應該賣/,
-    /應該入手/,
-    /應該放/,
-    /應該沽/,
-    /應該唔應該/,
-    /好唔好買/,
-    /好唔好賣/,
-    /值唔值得買/,
-    /值唔值得投資/,
-    /可唔可以買/,
-    /可唔可以賣/,
-    /入唔入得過/,
-    /走唔走得/,
+    /应不应该买/,
+    /应不应该卖/,
+    /应该买/,
+    /应该卖/,
+    /应该入手/,
+    /应该卖出/,
+    /应该抛/,
+    /值不值得买/,
+    /值不值得投资/,
+    /可不可以买/,
+    /可不可以卖/,
+    /能不能买/,
+    /能不能卖/,
+    /该不该加仓/,
+    /该不该减仓/,
     /buy.*recommend/,
     /sell.*recommend/,
     /should i buy/,
@@ -597,10 +596,10 @@ function addAssistantMessage(text, showAdvisorBtn = false) {
   div.className = 'message assistant';
 
   let html = `<div class="bubble">${formatMessage(text)}</div>`;
-  html += '<div class="compliance-badge"><span class="badge-icon">ℹ️</span> 資訊用途</div>';
+  html += '<div class="compliance-badge"><span class="badge-icon">ℹ️</span> 信息用途</div>';
 
   if (showAdvisorBtn) {
-    html += '<button class="advisor-btn" onclick="alert(\'此功能僅為 Demo 展示，並非真實功能。在實際產品中將引導至持牌顧問預約系統。\')">🔍 尋找持牌顧問</button>';
+    html += '<button class="advisor-btn" onclick="alert(\'此功能仅为 Demo 展示，并非真实功能。在实际产品中将引导至持牌顾问预约系统。\')">🔍 寻找持牌顾问</button>';
   }
 
   div.innerHTML = html;
@@ -612,7 +611,7 @@ function addErrorMessage() {
   const msgs = document.getElementById('chatMessages');
   const div = document.createElement('div');
   div.className = 'message assistant';
-  div.innerHTML = `<div class="bubble" style="color:var(--red)">⚠️ API 連線出現問題，請檢查你嘅 API Key 是否有效，或稍後再試。</div>`;
+  div.innerHTML = `<div class="bubble" style="color:var(--red)">⚠️ API 连接出现问题，请检查你的 API Key 是否有效，或稍后再试。</div>`;
   msgs.appendChild(div);
   scrollToBottom();
 }
@@ -698,7 +697,7 @@ async function sendMessage() {
     removeTypingIndicator();
 
     const demoReply = localBoundary
-      ? "我係資訊助手，唔係持牌投資顧問，唔可以俾你投資建議。投資決定需要考慮你個人嘅財務狀況、風險承受能力同投資目標。我建議你諮詢持牌投資顧問，或者參考官方研究報告再自行判斷。\n\n我可以幫你分析呢隻股票嘅基本資料、財務數據同行業趨勢，俾你多啲參考資訊，有需要嗎？"
+      ? "我是信息助手，不是持牌投资顾问，不可以给你投资建议。投资决定需要考虑你个人的财务状况、风险承受能力和投资目标。我建议你咨询持牌投资顾问，或者参考官方研究报告再自行判断。\n\n我可以帮你分析这只股票的基本资料、财务数据和行业趋势，给你更多参考信息，有需要吗？"
       : generateDemoReply(msg);
 
     addAssistantMessage(demoReply, localBoundary);
@@ -721,27 +720,27 @@ function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 function generateDemoReply(msg) {
   const lower = msg.toLowerCase();
 
-  if (lower.includes('組合') || lower.includes('portfolio') || lower.includes('表現')) {
-    return `睇返你嘅組合，目前總值 **${portfolio.totalValue}**，今日升咗 **${portfolio.dayPnL} (${portfolio.dayPnLPct})**，表現唔錯！\n\n你持有5隻股票，當中 **NVDA** 同 **騰訊 0700.HK** 貢獻最多收益。阿里巴巴 **9988.HK** 目前錄得虧損約 **-HK$9,240**，拖低咗整體回報。\n\n記住，組合表現受市場波動影響，過去表現唔代表將來回報。`;
+  if (lower.includes('组合') || lower.includes('portfolio') || lower.includes('表现')) {
+    return `来看你的组合，目前总值 **${portfolio.totalValue}**，今日上涨 **${portfolio.dayPnL} (${portfolio.dayPnLPct})**，表现不错！\n\n你持有5只股票，其中 **NVDA** 和 **腾讯 0700.HK** 贡献最多收益。阿里巴巴 **9988.HK** 目前录得亏损约 **-HK$9,240**，拖低了整体回报。\n\n记住，组合表现受市场波动影响，过去表现不代表将来回报。`;
   }
 
-  if (lower.includes('700') || lower.includes('騰訊')) {
-    return `**騰訊控股 (0700.HK)** 係你組合入面最大持倉之一，持有500股，平均成本 HK$312.40，現價 HK$358.20，賬面盈利約 **+HK$22,900 (+14.66%)**。\n\n騰訊核心業務包括遊戲、社交媒體（微信）、金融科技及雲服務。最近幾季業績顯示遊戲業務復甦，廣告收入亦穩步增長。不過要注意監管環境同宏觀經濟對科技股嘅影響。\n\n以上僅為資訊整理，不構成投資建議。`;
+  if (lower.includes('700') || lower.includes('腾讯')) {
+    return `**腾讯控股 (0700.HK)** 是你组合里面最大的持仓之一，持有500股，平均成本 HK$312.40，现价 HK$358.20，账面盈利约 **+HK$22,900 (+14.66%)**。\n\n腾讯核心业务包括游戏、社交媒体（微信）、金融科技及云服务。最近几季业绩显示游戏业务复苏，广告收入也稳步增长。不过要注意监管环境和宏观经济对科技股的影响。\n\n以上仅为信息整理，不构成投资建议。`;
   }
 
-  if (lower.includes('nvda') || lower.includes('輝達')) {
-    return `**輝達 (NVDA)** 係你組合入面表現最強嘅持股，80股平均成本 $485.20，現價 $721.50，賬面盈利約 **+$18,904 (+48.69%)**。\n\nNVDA 受惠於 AI 晶片需求爆發，數據中心業務增長強勁。不過半導體行業週期性強，估值已經反映咗市場對 AI 嘅高預期。\n\n⚠️ 以上為資訊整理，不構成投資建議。投資涉及風險，請自行評估。`;
+  if (lower.includes('nvda') || lower.includes('辉达')) {
+    return `**辉达 (NVDA)** 是你组合里面表现最强的持股，80股平均成本 $485.20，现价 $721.50，账面盈利约 **+$18,904 (+48.69%)**。\n\nNVDA 受惠于 AI 芯片需求爆发，数据中心业务增长强劲。不过半导体行业周期性强，估值已经反映了市场对 AI 的高预期。\n\n⚠️ 以上为信息整理，不构成投资建议。投资涉及风险，请自行评估。`;
   }
 
   if (lower.includes('rsi')) {
-    return `**RSI (Relative Strength Index)** 係一個常用嘅技術指標，由 Wilder 喺1978年提出，用嚟衡量股票係「超買」定「超賣」。\n\n• **RSI > 70**：通常視為超買，可能回調\n• **RSI < 30**：通常視為超賣，可能反彈\n• RSI 數值範圍由 0 到 100\n\nRSI 可以幫你了解市場情緒，但唔應該單獨用作買賣決策，最好配合其他指標同基本面分析一齊使用。`;
+    return `**RSI (Relative Strength Index)** 是一个常用的技术指标，由 Wilder 在1978年提出，用来衡量股票是「超买」还是「超卖」。\n\n• **RSI > 70**：通常视为超买，可能回调\n• **RSI < 30**：通常视为超卖，可能反弹\n• RSI 数值范围从 0 到 100\n\nRSI 可以帮你了解市场情绪，但不应该单独用作买卖决策，最好配合其他指标和基本面分析一起使用。`;
   }
 
-  if (lower.includes('風險') || lower.includes('risk')) {
-    return `睇返你嘅組合風險狀況：\n\n• 你嘅風險評級係 **進取型**，組合集中喺科技股（騰訊、NVDA、AAPL、阿里都係科技板塊）\n• 地區集中度偏高，港股同美股各佔約一半，缺乏其他市場分散\n• 現金比例約 **15%**（HKD 284,320），流動性充裕\n\n建議留意板塊集中風險，科技股波動性較高。多元化配置可以考慮加入不同行業同地區嘅資產。\n\n⚠️ 以上為風險資訊分析，不構成投資建議。`;
+  if (lower.includes('风险') || lower.includes('risk')) {
+    return `来看你的组合风险状况：\n\n• 你的风险评级是 **进取型**，组合集中在科技股（腾讯、NVDA、AAPL、阿里都是科技板块）\n• 地区集中度偏高，港股和美股各占约一半，缺乏其他市场分散\n• 现金比例约 **15%**（HKD 284,320），流动性充裕\n\n建议留意板块集中风险，科技股波动性较高。多元化配置可以考虑加入不同行业和地区的资产。\n\n⚠️ 以上为风险信息分析，不构成投资建议。`;
   }
 
-  return `多謝你嘅問題！我係 Mia，可以幫你分析組合表現、講解財務概念、討論市場趨勢。\n\n你可以試吓問我關於你持有嘅股票（騰訊、NVDA、阿里、平安、AAPL），或者任何投資相關嘅概念。\n\n記住，我提供嘅資訊僅供參考，唔構成投資建議。`;
+  return `谢谢你的问题！我是 Mia，可以帮你分析组合表现、讲解财务概念、讨论市场趋势。\n\n你可以试着问我关于你持有的股票（腾讯、NVDA、阿里、平安、AAPL），或者任何投资相关的概念。\n\n记住，我提供的信息仅供参考，不构成投资建议。`;
 }
 
 // ─── API Key Modal ───
